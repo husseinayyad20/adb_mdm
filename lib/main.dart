@@ -213,11 +213,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
           try {
             var name = await getUserPath();
-            if (name != null) {
-              print(' name: $name');
-            } else {
-              print('Failed to retrieve name ');
-            }
+            print(' name: $name');
             String mac = '''
 
  
@@ -241,9 +237,23 @@ adb shell am broadcast -a com.telpo.syh.upgradeservice.BROADCAST -f 0x01000000
         
         ''';
 
-            await shell
-                .run(Platform.isMacOS ? mac : win)
-                .then((value) => print(value.outText));
+            await shell.run(Platform.isMacOS ? mac : win).then((value) {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text("adb"),
+                  content: Text(value.outText.toString()),
+                  actions: [
+                    InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text("OK"))
+                  ],
+                ),
+              );
+              print(value.outText);
+            });
             //var result = await shell.run('adb devices');
             // Process the result
           } catch (e) {
