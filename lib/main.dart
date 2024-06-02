@@ -112,7 +112,9 @@ class _MyHomePageState extends State<MyHomePage> {
                     const SizedBox(
                       height: 40,
                     ),
-                    _adb(context),
+                    isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : _adb(context),
                   ],
                 ),
               )
@@ -196,13 +198,16 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  bool isLoading = false;
   SizedBox _adb(BuildContext context) {
     return SizedBox(
       width: 240,
       child: ElevatedButton.icon(
         onPressed: () async {
           //_runAdbReboot();
-
+          setState(() {
+            isLoading = true;
+          });
           var shell = Shell(
               runInShell: true,
               includeParentEnvironment: true,
@@ -238,6 +243,9 @@ adb shell am broadcast -a com.telpo.syh.upgradeservice.BROADCAST -f 0x01000000
         ''';
 
             await shell.run(Platform.isMacOS ? mac : win).then((value) {
+              setState(() {
+                isLoading = false;
+              });
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
@@ -257,6 +265,9 @@ adb shell am broadcast -a com.telpo.syh.upgradeservice.BROADCAST -f 0x01000000
             //var result = await shell.run('adb devices');
             // Process the result
           } catch (e) {
+            setState(() {
+              isLoading = false;
+            });
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
