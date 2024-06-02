@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:link_text/link_text.dart';
 import 'package:process_run/process_run.dart';
 
 void main() {
@@ -22,42 +23,18 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'adb Winners MDM',
+      title: 'ADB Winners MDM',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'adb Winners MDM'),
+      home: const MyHomePage(title: 'ADB Winners MDM'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -69,90 +46,76 @@ class _MyHomePageState extends State<MyHomePage> {
   FilePickerResult? result;
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(19.0),
+          padding: const EdgeInsets.all(15.0),
           child: Column(
-            // Column is also a layout widget. It takes a list of children and
-            // arranges them vertically. By default, it sizes itself to fit its
-            // children horizontally, and tries to be as tall as its parent.
-            //
-            // Column has various properties to control how it sizes itself and
-            // how it positions its children. Here we use mainAxisAlignment to
-            // center the children vertically; the main axis here is the vertical
-            // axis because Columns are vertical (the cross axis would be
-            // horizontal).
-            //
-            // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-            // action in the IDE, or press "p" in the console), to see the
-            // wireframe for each widget.
-
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               const Text(
                 'Steps:',
                 style: TextStyle(fontSize: 16),
               ),
-              const Text(
-                '''1-  Install ADB: https://theflutterist.medium.com/setting-up-adb-path-on-windows-android-tips-5b5cdaa9084b
- 2- Enable USB Debugging on your Android device:
-Go to Settings > About Phone.
-Tap on "Build Number" seven times to enable Developer Options.
-Go back to the main Settings menu, and now you should see "Developer Options" or "Developer Settings."
-Open Developer Options and enable USB Debugging.
-Connect your phone to your computer:
-Use a USB cable to connect your Android device to your computer.
-If prompted on your phone, allow USB debugging. 
+              const LinkText(
+                ''' 1- install otapackage-v1.1.4 and than rename file to update, please note the file must be on download folder  https://drive.google.com/file/d/1gsTlVaMjFUNv2yLPP8sy0kzXzLFiDV_D/view
+ 2-  Install ADB: https://theflutterist.medium.com/setting-up-adb-path-on-windows-android-tips-5b5cdaa9084b
+ 3- Enable USB Debugging on your Android device:
+ Go to Settings > About Phone.
+ Tap on "Build Number" seven times to enable Developer Options.
+ Go back to the main Settings menu, and now you should see "Developer Options" or "Developer Settings."
+ Open Developer Options and enable USB Debugging.
+ Connect your phone to your computer:
+ Use a USB cable to connect your Android device to your computer.
+ If prompted on your phone, allow USB debugging. 
 
              
                ''',
-                style: TextStyle(fontSize: 12),
+                linkStyle: TextStyle(
+                    color: Colors.blue,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500),
+                textStyle: TextStyle(fontSize: 12),
               ),
-              const SizedBox(
-                height: 5,
-              ),
-              SizedBox(
-                width: 240,
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    result = await FilePicker.platform.pickFiles(
-                      type: FileType.custom,
-                      allowedExtensions: ['zip'],
-                    );
-                    setState(() {});
-                  },
-                  style: const ButtonStyle(
-                      padding: MaterialStatePropertyAll(EdgeInsets.all(18))),
-                  icon: const Icon(Icons.upload_file),
-                  label: Text(result == null
-                      ? "upload update.zip file"
-                      : result?.files.first.name ?? ''),
+              Align(
+                alignment: Alignment.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 240,
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          result = await FilePicker.platform.pickFiles(
+                            type: FileType.custom,
+                            allowedExtensions: ['zip'],
+                          );
+                          setState(() {});
+                        },
+                        style: const ButtonStyle(
+                            padding:
+                                MaterialStatePropertyAll(EdgeInsets.all(18))),
+                        icon: const Icon(Icons.upload_file),
+                        label: Text(result == null
+                            ? "upload update.zip file"
+                            : result?.files.first.name ?? ''),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    _testAdb(context),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    _adb(context),
+                  ],
                 ),
-              ),
-              const SizedBox(
-                height: 40,
-              ),
-              _testAdb(context),
-              const SizedBox(
-                height: 40,
-              ),
-              _adb(context)
+              )
             ],
           ),
         ),
