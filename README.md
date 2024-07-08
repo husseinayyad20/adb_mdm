@@ -3,6 +3,8 @@
 A new Flutter project.
 
 ## Getting Started
+flutter config --enable-macos-desktop
+flutter run -d macos
 
 This project is a starting point for a Flutter application.
 
