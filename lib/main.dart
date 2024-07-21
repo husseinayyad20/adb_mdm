@@ -1,9 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:developer';
 import 'dart:io';
-
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+
 import 'package:link_text/link_text.dart';
 import 'package:process_run/process_run.dart';
 
@@ -25,7 +28,10 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'ADB Winners MDM',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
+        primaryColor: const Color.fromARGB(255, 9, 41, 65),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color.fromARGB(255, 9, 41, 65),
+        ),
         useMaterial3: true,
       ),
       home: const MyHomePage(title: 'ADB Winners MDM'),
@@ -48,8 +54,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        //backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: Text(
+          widget.title,
+          style: const TextStyle(color: Colors.white),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -96,13 +105,20 @@ class _MyHomePageState extends State<MyHomePage> {
                           );
                           setState(() {});
                         },
-                        style: const ButtonStyle(
-                            padding:
-                                MaterialStatePropertyAll(EdgeInsets.all(18))),
+                        style: ButtonStyle(
+                            iconColor:
+                                const MaterialStatePropertyAll(Colors.white),
+                            backgroundColor: MaterialStatePropertyAll(
+                                Theme.of(context).primaryColor),
+                            padding: const MaterialStatePropertyAll(
+                                EdgeInsets.all(18))),
                         icon: const Icon(Icons.upload_file),
-                        label: Text(result == null
-                            ? "upload update.zip file"
-                            : result?.files.first.name ?? ''),
+                        label: Text(
+                          result == null
+                              ? "upload update.zip file"
+                              : result?.files.first.name ?? '',
+                          style: const TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                     const SizedBox(
@@ -115,6 +131,12 @@ class _MyHomePageState extends State<MyHomePage> {
                     isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : _adb(context),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                    apkIsLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : _apk(context)
                   ],
                 ),
               )
@@ -190,10 +212,16 @@ class _MyHomePageState extends State<MyHomePage> {
             print('Error: $e');
           }
         },
-        style: const ButtonStyle(
-            padding: MaterialStatePropertyAll(EdgeInsets.all(18))),
+        style: ButtonStyle(
+            iconColor: const MaterialStatePropertyAll(Colors.white),
+            backgroundColor:
+                MaterialStatePropertyAll(Theme.of(context).primaryColor),
+            padding: const MaterialStatePropertyAll(EdgeInsets.all(18))),
         icon: const Icon(Icons.phonelink_setup),
-        label: const Text("Verify the connection"),
+        label: const Text(
+          "Verify the connection",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
@@ -285,10 +313,114 @@ adb shell am broadcast -a com.telpo.syh.upgradeservice.BROADCAST -f 0x01000000
             print('Error: $e');
           }
         },
-        style: const ButtonStyle(
-            padding: MaterialStatePropertyAll(EdgeInsets.all(18))),
+        style: ButtonStyle(
+            iconColor: const MaterialStatePropertyAll(Colors.white),
+            backgroundColor:
+                MaterialStatePropertyAll(Theme.of(context).primaryColor),
+            padding: const MaterialStatePropertyAll(EdgeInsets.all(18))),
         icon: const Icon(Icons.adb_outlined),
-        label: const Text("run adb commands"),
+        label: const Text(
+          "run adb commands",
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  Future<Directory> _getDownloadDirectory() async {
+    if (Platform.isMacOS || Platform.isWindows) {
+      return await getApplicationDocumentsDirectory();
+    } else {
+      throw UnsupportedError('Platform not supported');
+    }
+  }
+
+  bool apkIsLoading = false;
+  SizedBox _apk(BuildContext context) {
+    return SizedBox(
+      width: 240,
+      child: ElevatedButton.icon(
+        onPressed: () async {
+          setState(() {
+            apkIsLoading = true;
+          });
+          String apkUrl =
+              'https://fr.winners.com.lr/api/general/Files/Enterprise/Version/app-release-ent.apk'; // Replace with your APK URL
+
+          final dir = await _getDownloadDirectory();
+          final savePath =
+              '${dir.path}/${apkUrl.substring(apkUrl.length - 6, apkUrl.length)}';
+          try {
+            await Dio().download(apkUrl, savePath).then((value) {
+              log(value.data.toString());
+            });
+            print("Download Completed.");
+            // Define the shell command for pushing and installing the APK
+            String command = '''
+                  adb push "$savePath" /sdcard/ 
+                  adb install $savePath
+                ''';
+
+            var shell = Shell(
+                runInShell: true,
+                includeParentEnvironment: true,
+                options: ShellOptions(
+                    includeParentEnvironment: true,
+                    runInShell: true,
+                    commandVerbose: true));
+
+            // Execute the shell command
+            await shell.run(command).then((result) {
+              setState(() {
+                apkIsLoading = false;
+              });
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text("ADB Command Result"),
+                  content: Text(result.outText.toString()),
+                  actions: [
+                    InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text("OK"))
+                  ],
+                ),
+              );
+              print(result.outText);
+            });
+          } catch (e) {
+            setState(() {
+              apkIsLoading = false;
+            });
+            print("Download Failed.\n\n" + e.toString());
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text("Error"),
+                content: Text(e.toString()),
+                actions: [
+                  InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text("OK"))
+                ],
+              ),
+            );
+          }
+        },
+        style: ButtonStyle(
+            iconColor: const MaterialStatePropertyAll(Colors.white),
+            backgroundColor:
+                MaterialStatePropertyAll(Theme.of(context).primaryColor),
+            padding: const MaterialStatePropertyAll(EdgeInsets.all(18))),
+        icon: const Icon(Icons.apps),
+        label: const Text(
+          "Install apk to M1",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
