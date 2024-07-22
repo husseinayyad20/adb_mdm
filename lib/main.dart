@@ -353,6 +353,25 @@ adb shell am broadcast -a com.telpo.syh.upgradeservice.BROADCAST -f 0x01000000
           try {
             await Dio().download(apkUrl, savePath).then((value) {
               log(value.data.toString());
+            }).catchError((error){
+              setState(() {
+                apkIsLoading = false;
+              });
+              print("Download Failed.\n\n" + error.toString());
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text("Error"),
+                  content: Text(error.toString()),
+                  actions: [
+                    InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text("OK"))
+                  ],
+                ),
+              );
             });
             print("Download Completed.");
             // Define the shell command for pushing and installing the APK
