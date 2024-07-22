@@ -351,9 +351,13 @@ adb shell am broadcast -a com.telpo.syh.upgradeservice.BROADCAST -f 0x01000000
           final savePath =
               '${dir.path}/${apkUrl.substring(apkUrl.length - 6, apkUrl.length)}';
           try {
-            await Dio().download(apkUrl, savePath).then((value) {
+            await Dio(BaseOptions(
+              connectTimeout: const Duration(minutes: 3),
+              sendTimeout: const Duration(minutes: 5),
+              receiveTimeout: const Duration(minutes: 5),
+            )).download(apkUrl, savePath).then((value) {
               log(value.data.toString());
-            }).catchError((error){
+            }).catchError((error) {
               setState(() {
                 apkIsLoading = false;
               });
