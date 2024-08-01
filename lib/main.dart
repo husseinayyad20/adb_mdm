@@ -94,6 +94,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     apkIsLoadingDev
                         ? const Center(child: CircularProgressIndicator())
                         : _apkDev(context),
+                    _space(),
+
                   ],
                 ),
               )
