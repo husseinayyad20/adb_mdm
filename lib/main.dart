@@ -87,15 +87,53 @@ class _MyHomePageState extends State<MyHomePage> {
                         ? const Center(child: CircularProgressIndicator())
                         : _adb(context),
                     _space(),
-                    apkIsLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : _apk(context),
+                    SizedBox(
+                      width: 600,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: apkIsLoading
+                                ? const Center(
+                                    child: CircularProgressIndicator())
+                                : _apk(context),
+                          ),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          Expanded(
+                            child: apkIsLoadingLocal
+                                ? const Center(
+                                    child: CircularProgressIndicator())
+                                : _apkLocal(context),
+                          )
+                        ],
+                      ),
+                    ),
                     _space(),
-                    apkIsLoadingDev
-                        ? const Center(child: CircularProgressIndicator())
-                        : _apkDev(context),
+                    SizedBox(
+                      width: 600,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: apkIsLoadingDev
+                                ? const Center(
+                                    child: CircularProgressIndicator())
+                                : _apkDev(context),
+                          ),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          Expanded(
+                            child: apkIsLoadingDevLocal
+                                ? const Center(
+                                    child: CircularProgressIndicator())
+                                : _apkDevLocal(context),
+                          )
+                        ],
+                      ),
+                    ),
                     _space(),
-
                   ],
                 ),
               )
@@ -115,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   SizedBox _uploadFile(BuildContext context) {
     return SizedBox(
-      width: 260,
+      width: 280,
       child: ElevatedButton(
         onPressed: () async {
           result = await FilePicker.platform.pickFiles(
@@ -185,7 +223,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   SizedBox _testAdb(BuildContext context) {
     return SizedBox(
-      width: 260,
+      width: 280,
       child: ElevatedButton(
         onPressed: () async {
           await _testCabel(context);
@@ -278,7 +316,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isLoading = false;
   SizedBox _adb(BuildContext context) {
     return SizedBox(
-      width: 260,
+      width: 280,
       child: ElevatedButton(
         onPressed: () async {
           //_runAdbReboot();
@@ -406,10 +444,12 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   bool apkIsLoading = false;
+  bool apkIsLoadingLocal = false;
   bool apkIsLoadingDev = false;
+  bool apkIsLoadingDevLocal = false;
   SizedBox _apk(BuildContext context) {
     return SizedBox(
-      width: 260,
+      width: 280,
       child: ElevatedButton(
         onPressed: () async {
           await _installProdApk(context);
@@ -438,9 +478,71 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  SizedBox _apkLocal(BuildContext context) {
+    return SizedBox(
+      width: 280,
+      child: ElevatedButton(
+        onPressed: () async {
+          await _installProdApkLocal(context);
+        },
+        style: ButtonStyle(
+            iconColor: const MaterialStatePropertyAll(Colors.white),
+            backgroundColor:
+                MaterialStatePropertyAll(Theme.of(context).primaryColor),
+            padding: const MaterialStatePropertyAll(EdgeInsets.all(18))),
+        child: const Row(
+          children: [
+            Icon(Icons.apps_outage_outlined),
+            SizedBox(
+              width: 10,
+            ),
+            Expanded(
+              child: Text(
+                "Install local apk (Prod) to M1",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  SizedBox _apkDevLocal(BuildContext context) {
+    return SizedBox(
+      width: 280,
+      child: ElevatedButton(
+        onPressed: () async {
+          await _installDevApkLocal(context);
+        },
+        style: ButtonStyle(
+            iconColor: const MaterialStatePropertyAll(Colors.white),
+            backgroundColor:
+                MaterialStatePropertyAll(Theme.of(context).primaryColor),
+            padding: const MaterialStatePropertyAll(EdgeInsets.all(18))),
+        child: const Row(
+          children: [
+            Icon(Icons.apps_outage_outlined),
+            SizedBox(
+              width: 10,
+            ),
+            Expanded(
+              child: Text(
+                "Install local apk (Dev) to M1",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   SizedBox _apkDev(BuildContext context) {
     return SizedBox(
-      width: 260,
+      width: 280,
       child: ElevatedButton(
         onPressed: () async {
           await _installDevApk(context);
@@ -572,6 +674,195 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+  Future<void> _installProdApkLocal(BuildContext context) async {
+    setState(() {
+      apkIsLoadingLocal = true;
+    });
+    String apkUrl =
+        'https://fr.winners.com.lr/api/general/Files/Enterprise/Version/app-release-ent.apk'; // Replace with your APK URL
+
+    final dir = await _getDownloadDirectory();
+    final savePath =
+        '${dir.path}/${apkUrl.substring(apkUrl.length - 6, apkUrl.length)}';
+    try {
+      if (kDebugMode) {
+        print("Download Completed.");
+      }
+      // Define the shell command for pushing and installing the APK
+      String command = '''
+            adb push "$savePath" /sdcard/ 
+            adb install $savePath
+          ''';
+
+      var shell = Shell(
+          runInShell: true,
+          includeParentEnvironment: true,
+          options: ShellOptions(
+              includeParentEnvironment: true,
+              runInShell: true,
+              commandVerbose: true));
+
+      // Execute the shell command
+      await shell.run(command).then((result) {
+        setState(() {
+          apkIsLoadingLocal = false;
+        });
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("ADB Command Result"),
+            content: Text(result.outText.toString()),
+            actions: [
+              InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("OK"))
+            ],
+          ),
+        );
+        if (kDebugMode) {
+          print(result.outText);
+        }
+      }).catchError((e) {
+        setState(() {
+          apkIsLoadingLocal = false;
+        });
+        if (kDebugMode) {
+          print("Download Failed.\n\n$e");
+        }
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Error"),
+            content: const Text("please install apk from server first"),
+            actions: [
+              InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("OK"))
+            ],
+          ),
+        );
+      });
+    } catch (e) {
+      setState(() {
+        apkIsLoadingLocal = false;
+      });
+      if (kDebugMode) {
+        print("Download Failed.\n\n$e");
+      }
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Error"),
+          content: Text(e.toString()),
+          actions: [
+            InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("OK"))
+          ],
+        ),
+      );
+    }
+  }
+
+  Future<void> _installDevApkLocal(BuildContext context) async {
+    setState(() {
+      apkIsLoadingDevLocal = true;
+    });
+    String apkUrl =
+        'https://dev-fr.winners.com.lr/api/general/Files/Enterprise/Version/app-release-ent.apk'; // Replace with your APK URL
+
+    final dir = await _getDownloadDirectory();
+    final savePath =
+        '${dir.path}/${apkUrl.substring(apkUrl.length - 7, apkUrl.length)}';
+    try {
+      // Define the shell command for pushing and installing the APK
+      String command = '''
+            adb push "$savePath" /sdcard/ 
+            adb install $savePath
+          ''';
+
+      var shell = Shell(
+          runInShell: true,
+          includeParentEnvironment: true,
+          options: ShellOptions(
+              includeParentEnvironment: true,
+              runInShell: true,
+              commandVerbose: true));
+
+      // Execute the shell command
+      await shell.run(command).then((result) {
+        setState(() {
+          apkIsLoadingDevLocal = false;
+        });
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("ADB Command Result"),
+            content: Text(result.outText.toString()),
+            actions: [
+              InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("OK"))
+            ],
+          ),
+        );
+        if (kDebugMode) {
+          print(result.outText);
+        }
+      }).catchError((e) {
+        setState(() {
+          apkIsLoadingDevLocal = false;
+        });
+        if (kDebugMode) {
+          print("Download Failed.\n\n$e");
+        }
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Error"),
+            content: const Text("please install apk from server first"),
+            actions: [
+              InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text("OK"))
+            ],
+          ),
+        );
+      });
+    } catch (e) {
+      setState(() {
+        apkIsLoadingDevLocal = false;
+      });
+      if (kDebugMode) {
+        print("Download Failed.\n\n$e");
+      }
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Error"),
+          content: Text(e.toString()),
+          actions: [
+            InkWell(
+                onTap: () {
+                  Navigator.pop(context);
+                },
+                child: const Text("OK"))
+          ],
+        ),
+      );
+    }
+  }
+
   Future<void> _installDevApk(BuildContext context) async {
     setState(() {
       apkIsLoadingDev = true;
@@ -581,7 +872,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final dir = await _getDownloadDirectory();
     final savePath =
-        '${dir.path}/${apkUrl.substring(apkUrl.length - 6, apkUrl.length)}';
+        '${dir.path}/${apkUrl.substring(apkUrl.length - 7, apkUrl.length)}';
     try {
       await Dio(BaseOptions(
         connectTimeout: const Duration(minutes: 3),
