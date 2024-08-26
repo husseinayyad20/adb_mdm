@@ -111,29 +111,29 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                     _space(),
-                    SizedBox(
-                      width: 600,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: apkIsLoadingDev
-                                ? const Center(
-                                    child: CircularProgressIndicator())
-                                : _apkDev(context),
-                          ),
-                          const SizedBox(
-                            width: 20,
-                          ),
-                          Expanded(
-                            child: apkIsLoadingDevLocal
-                                ? const Center(
-                                    child: CircularProgressIndicator())
-                                : _apkDevLocal(context),
-                          )
-                        ],
-                      ),
-                    ),
-                    _space(),
+                    // SizedBox(
+                    //   width: 600,
+                    //   child: Row(
+                    //     children: [
+                    //       Expanded(
+                    //         child: apkIsLoadingDev
+                    //             ? const Center(
+                    //                 child: CircularProgressIndicator())
+                    //             : _apkDev(context),
+                    //       ),
+                    //       const SizedBox(
+                    //         width: 20,
+                    //       ),
+                    //       Expanded(
+                    //         child: apkIsLoadingDevLocal
+                    //             ? const Center(
+                    //                 child: CircularProgressIndicator())
+                    //             : _apkDevLocal(context),
+                    //       )
+                    //     ],
+                    //   ),
+                    // ),
+                    // _space(),
                   ],
                 ),
               )
