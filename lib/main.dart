@@ -579,8 +579,9 @@ class _MyHomePageState extends State<MyHomePage> {
         'https://fr.winners.com.lr/api/general/Files/Enterprise/Version/app-release-ent.apk'; // Replace with your APK URL
 
     final dir = await _getDownloadDirectory();
-    final savePath =
-        '${dir.path}/${apkUrl.substring(apkUrl.length - 6, apkUrl.length)}';
+    final savePath = '${dir.path}\\${apkUrl.split('/').last}'; // Adjust path for Windows
+    // final savePath =
+    //     '${dir.path}/${apkUrl.substring(apkUrl.length - 6, apkUrl.length)}';
     try {
       await Dio(BaseOptions(
         connectTimeout: const Duration(minutes: 3),
@@ -682,8 +683,9 @@ class _MyHomePageState extends State<MyHomePage> {
         'https://fr.winners.com.lr/api/general/Files/Enterprise/Version/app-release-ent.apk'; // Replace with your APK URL
 
     final dir = await _getDownloadDirectory();
-    final savePath =
-        '${dir.path}/${apkUrl.substring(apkUrl.length - 6, apkUrl.length)}';
+    final savePath = '${dir.path}\\${apkUrl.split('/').last}'; // Adjust path for Windows
+    // final savePath =
+    //     '${dir.path}/${apkUrl.substring(apkUrl.length - 6, apkUrl.length)}';
     try {
       if (kDebugMode) {
         print("Download Completed.");
@@ -778,8 +780,9 @@ class _MyHomePageState extends State<MyHomePage> {
         'https://dev-fr.winners.com.lr/api/general/Files/Enterprise/Version/app-release-ent.apk'; // Replace with your APK URL
 
     final dir = await _getDownloadDirectory();
-    final savePath =
-        '${dir.path}/${apkUrl.substring(apkUrl.length - 7, apkUrl.length)}';
+    // final savePath =
+    //     '${dir.path}/${apkUrl.substring(apkUrl.length - 7, apkUrl.length)}';
+    final savePath = '${dir.path}\\${apkUrl.split('/').last}'; // Adjust path for Windows
     try {
       // Define the shell command for pushing and installing the APK
       String command = '''
@@ -871,8 +874,9 @@ class _MyHomePageState extends State<MyHomePage> {
         'https://dev-fr.winners.com.lr/api/general/Files/Enterprise/Version/app-release-ent.apk'; // Replace with your APK URL
 
     final dir = await _getDownloadDirectory();
-    final savePath =
-        '${dir.path}/${apkUrl.substring(apkUrl.length - 7, apkUrl.length)}';
+    // final savePath =
+    //     '${dir.path}/${apkUrl.substring(apkUrl.length - 7, apkUrl.length)}';
+    final savePath = '${dir.path}\\${apkUrl.split('/').last}'; // Adjust path for Windows
     try {
       await Dio(BaseOptions(
         connectTimeout: const Duration(minutes: 3),
